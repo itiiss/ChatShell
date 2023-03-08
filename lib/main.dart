@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:project/chat.dart';
 
 void main() => runApp(const GetMaterialApp(home: Home()));
 
@@ -27,71 +28,5 @@ class Home extends StatelessWidget {
                 onPressed: () => Get.to(const ChatPage()))),
         floatingActionButton: FloatingActionButton(
             onPressed: c.increment, child: const Icon(Icons.add)));
-  }
-}
-
-class ChatController extends GetxController {
-  final messages = List<String>.empty(growable: true).obs;
-  final textEditingController = TextEditingController();
-
-  void sendMessage() {
-    final message = textEditingController.text.trim();
-    print(
-      '233 $message $messages',
-    );
-    if (message.isNotEmpty) {
-      messages.add(message);
-      textEditingController.clear();
-    }
-  }
-}
-
-class ChatPage extends StatelessWidget {
-  const ChatPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Chat Page"),
-      ),
-      body: GetBuilder<ChatController>(
-        init: ChatController(),
-        builder: (controller) => Column(
-          children: [
-            Expanded(
-              child: ListView.builder(
-                itemCount: controller.messages.length,
-                itemBuilder: (context, index) {
-                  return ListTile(
-                    title: Text(controller.messages[index]),
-                  );
-                },
-              ),
-            ),
-            Row(
-              children: [
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(8),
-                    child: TextField(
-                      controller: controller.textEditingController,
-                      decoration: const InputDecoration(
-                        hintText: "Enter message",
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.send),
-                  onPressed: controller.sendMessage,
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
   }
 }
