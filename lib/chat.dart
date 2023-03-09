@@ -6,7 +6,7 @@ import 'package:project/chat_service.dart';
 
 enum MessageType { receiver, sender }
 
-const token = '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';
+const token = '';
 
 class Message {
   final String content;
