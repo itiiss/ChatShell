@@ -1,12 +1,11 @@
-import 'package:chat_gpt_sdk/chat_gpt_sdk.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:project/chat_bubble.dart';
 import 'package:project/chat_service.dart';
+import 'package:project/setting.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-enum MessageType { receiver, sender }
-
-const token = '';
+enum MessageType { assistant, user }
 
 class Message {
   final String content;
@@ -21,35 +20,43 @@ class Message {
 class ChatController extends GetxController {
   final messages = List<Message>.empty(growable: true).obs;
   final textEditingController = TextEditingController();
+  late SharedPreferences prefs;
+  late Settings settings;
 
-  final openAI = OpenAI.instance.build(
-      token: "token",
-      baseOption: HttpSetup(receiveTimeout: const Duration(seconds: 5)),
-      isLogger: true);
+  @override
+  void onInit() async {
+    super.onInit();
+    prefs = await SharedPreferences.getInstance();
+    settings = Settings(prefs: prefs);
+  }
 
   void sendMessage() async {
     final message = textEditingController.text.trim();
     if (message.isNotEmpty) {
-      messages.add(Message(content: message, type: MessageType.sender));
+      messages.add(Message(content: message, type: MessageType.user));
 
-      ChatService chatService = ChatService(apiKey: token);
+      try {
+        ChatService chatService = ChatService(apiKey: settings.apiKey);
 
-      final response =
-          await chatService.getCompletion('${_getChatHistory()}\n$message\n');
-      final completion = response['choices'][0]['message']['content'];
-      messages.add(Message(content: completion, type: MessageType.receiver));
-
+        final response = await chatService.getCompletion(
+          message,
+          settings.prompt,
+          settings.defaultTemperature,
+          [],
+        );
+        final completion = response['choices'][0]['message']['content'];
+        messages.add(Message(content: completion, type: MessageType.assistant));
+      } catch (e) {
+        print('error: $e');
+      }
       textEditingController.clear();
     }
   }
 
-  String _getChatHistory() {
-    final history = messages
-        .where((message) => message.type == MessageType.sender)
-        .map((message) => message.content.trim())
-        .join('\n');
+  List<Message>? getChatHistory() {
+    // final recentHistory = _history?.latestMessages;
 
-    return history;
+    return settings.enableContinuousConversion ? [] : [];
   }
 }
 
@@ -73,7 +80,7 @@ class ChatPage extends StatelessWidget {
                 () => ListView.builder(
                   itemCount: controller.messages.length,
                   itemBuilder: (context, index) {
-                    return controller.messages[index].type == MessageType.sender
+                    return controller.messages[index].type == MessageType.user
                         ? SentMessageScreen(
                             message: controller.messages[index].content,
                             key: Key(controller.messages[index].content),
