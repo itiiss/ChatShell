@@ -16,13 +16,12 @@ class ChatService {
   ) async {
     final messages = lastChat?.map((message) {
           return {
-            "role": message.type == MessageType.user ? "user" : "assistant",
+            "role":
+                message.role == MessageType.user.name ? "user" : "assistant",
             "content": message.content,
           };
         }).toList() ??
         [];
-
-    print('service: $content, $prompt, $temperature');
 
     messages.add({"role": "user", "content": content});
 

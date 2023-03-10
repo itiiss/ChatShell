@@ -32,7 +32,7 @@ class SettingController extends GetxController {
 
   setApiKey(value) => apiKey.value = value;
   setPrompt(value) => prompt.value = value;
-  setTemperature(value) => temperature.value = double.tryParse(value) ?? 0;
+  setTemperature(value) => temperature.value = value;
   setEnableContinuousConversion(value) =>
       enableContinuousConversion.value = value;
   setEnableLocalCache(value) => enableLocalCache.value = value;
@@ -53,6 +53,33 @@ class Home extends StatelessWidget {
         labelText: label,
       ),
       onChanged: onChanged,
+    );
+  }
+
+  Widget _buildSlider({
+    required void Function(double) onChanged,
+    required String label,
+    required double value,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: const TextStyle(fontSize: 16),
+          ),
+          Expanded(
+            child: Slider(
+              value: value,
+              min: 0.0,
+              max: 1.0,
+              onChanged: onChanged,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -94,13 +121,13 @@ class Home extends StatelessWidget {
                   },
                 ),
                 const SizedBox(height: 20),
-                _buildTextField(
-                    label: 'Temperature',
-                    onChanged: (value) {
-                      settingController.setTemperature(value);
-                    },
-                    keyboardType:
-                        const TextInputType.numberWithOptions(decimal: true)),
+                _buildSlider(
+                  label: 'Temperature',
+                  value: settingController.temperature.value,
+                  onChanged: (value) {
+                    settingController.setTemperature(value);
+                  },
+                ),
                 const SizedBox(height: 20),
                 CheckboxListTile(
                   title: const Text('Enable Continuous Conversion'),
@@ -111,7 +138,7 @@ class Home extends StatelessWidget {
                 ),
                 const SizedBox(height: 10),
                 CheckboxListTile(
-                  title: const Text('Enable Local Cache'),
+                  title: const Text('Enable Local chat history'),
                   value: settingController.enableLocalCache.value,
                   onChanged: (value) {
                     settingController.setEnableLocalCache(value);
@@ -119,15 +146,11 @@ class Home extends StatelessWidget {
                 ),
                 const SizedBox(height: 20),
                 ElevatedButton(
-                  onPressed: _saveSettings,
-                  child: const Text('Save'),
-                ),
-                const SizedBox(height: 20),
-                ElevatedButton(
                   onPressed: () {
+                    _saveSettings();
                     Get.to(() => const ChatPage());
                   },
-                  child: const Text('Chat'),
+                  child: const Text('Save & Chat'),
                 ),
               ],
             ),
