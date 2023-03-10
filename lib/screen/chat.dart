@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:project/widget/chat_bubble.dart';
 import 'package:project/model/chat_history.dart';
-import 'package:project/service/chat_service.dart';
 import 'package:project/model/setting.dart';
+import 'package:project/service/chat_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:project/widget/chat_bubble.dart';
 
 enum MessageType { assistant, user }
 
@@ -107,11 +107,11 @@ class ChatPage extends StatelessWidget {
                   itemBuilder: (context, index) {
                     return controller.messages[index].role ==
                             MessageType.user.name
-                        ? SentMessageScreen(
+                        ? SentMessage(
                             message: controller.messages[index].content,
                             key: Key(controller.messages[index].content),
                           )
-                        : ReceivedMessageScreen(
+                        : ReceivedMessage(
                             message: controller.messages[index].content,
                             key: Key(controller.messages[index].content),
                           );

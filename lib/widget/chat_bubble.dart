@@ -23,9 +23,9 @@ class CustomShape extends CustomPainter {
   }
 }
 
-class ReceivedMessageScreen extends StatelessWidget {
+class ReceivedMessage extends StatelessWidget {
   final String message;
-  const ReceivedMessageScreen({
+  const ReceivedMessage({
     required Key key,
     required this.message,
   }) : super(key: key);
@@ -77,9 +77,9 @@ class ReceivedMessageScreen extends StatelessWidget {
   }
 }
 
-class SentMessageScreen extends StatelessWidget {
+class SentMessage extends StatelessWidget {
   final String message;
-  const SentMessageScreen({
+  const SentMessage({
     required Key key,
     required this.message,
   }) : super(key: key);
