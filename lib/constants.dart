@@ -1,5 +1,5 @@
 class Constants {
-  static const double defaultTemperature = 1.0;
+  static const double defaultTemperature = 0.0;
   static const bool enableContinuousConversion = true;
   static const bool enableLocalCache = true;
 

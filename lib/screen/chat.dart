@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:project/chat_bubble.dart';
-import 'package:project/chat_history.dart';
-import 'package:project/chat_service.dart';
-import 'package:project/setting.dart';
+import 'package:project/widget/chat_bubble.dart';
+import 'package:project/model/chat_history.dart';
+import 'package:project/service/chat_service.dart';
+import 'package:project/model/setting.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 enum MessageType { assistant, user }

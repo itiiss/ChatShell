@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:project/chat.dart';
+import 'package:project/screen/chat.dart';
 import 'package:project/constants.dart';
-import 'package:project/setting.dart';
+import 'package:project/model/setting.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() => runApp(GetMaterialApp(home: Home()));
