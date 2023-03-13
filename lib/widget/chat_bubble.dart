@@ -25,9 +25,11 @@ class CustomShape extends CustomPainter {
 
 class ReceivedMessage extends StatelessWidget {
   final String message;
+  final bool isLoading;
   const ReceivedMessage({
     required Key key,
     required this.message,
+    required this.isLoading,
   }) : super(key: key);
 
   @override
@@ -66,13 +68,15 @@ class ReceivedMessage extends StatelessWidget {
 
     return Padding(
       padding: const EdgeInsets.only(right: 50.0, left: 18, top: 10, bottom: 5),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: <Widget>[
-          const SizedBox(height: 30),
-          messageTextGroup,
-        ],
-      ),
+      child: isLoading
+          ? const CircularProgressIndicator()
+          : Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: <Widget>[
+                const SizedBox(height: 30),
+                messageTextGroup,
+              ],
+            ),
     );
   }
 }

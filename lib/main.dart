@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:project/screen/settting.dart';
+import 'package:project/screen/chat.dart';
 
 void main() => runApp(const GetMaterialApp(home: Home()));
 
@@ -9,9 +9,6 @@ class Home extends StatelessWidget {
 
   @override
   Widget build(context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Settings')),
-      body: Setting(),
-    );
+    return ChatPage();
   }
 }

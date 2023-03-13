@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:project/screen/chat.dart';
 import 'package:project/constants.dart';
 import 'package:project/model/setting.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -42,6 +41,7 @@ class Setting extends StatelessWidget {
   Widget _buildTextField({
     required void Function(String) onChanged,
     required String label,
+    required TextEditingController controller,
     TextInputType keyboardType = TextInputType.text,
   }) {
     return TextFormField(
@@ -50,6 +50,7 @@ class Setting extends StatelessWidget {
         border: const OutlineInputBorder(),
         labelText: label,
       ),
+      controller: controller,
       onChanged: onChanged,
     );
   }
@@ -84,8 +85,7 @@ class Setting extends StatelessWidget {
   final SettingController settingController = Get.put(SettingController());
 
   void _saveSettings() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    Settings settings = Settings(prefs: prefs);
+    Settings settings = Settings(prefs: settingController.prefs);
     settings.apiKey = settingController.apiKey.value;
     settings.prompt = settingController.prompt.value;
     settings.defaultTemperature = settingController.temperature.value;
@@ -96,59 +96,68 @@ class Setting extends StatelessWidget {
 
   @override
   Widget build(context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: SingleChildScrollView(
-        child: Obx(
-          () => Column(
-            children: [
-              const SizedBox(height: 20),
-              _buildTextField(
-                label: 'API Key',
-                onChanged: (value) {
-                  settingController.setApiKey(value);
-                },
-              ),
-              const SizedBox(height: 20),
-              _buildTextField(
-                label: 'Prompt',
-                onChanged: (value) {
-                  settingController.setPrompt(value);
-                },
-              ),
-              const SizedBox(height: 20),
-              _buildSlider(
-                label: 'Temperature',
-                value: settingController.temperature.value,
-                onChanged: (value) {
-                  settingController.setTemperature(value);
-                },
-              ),
-              const SizedBox(height: 20),
-              CheckboxListTile(
-                title: const Text('Enable Continuous Conversion'),
-                value: settingController.enableContinuousConversion.value,
-                onChanged: (value) {
-                  settingController.setEnableContinuousConversion(value);
-                },
-              ),
-              const SizedBox(height: 10),
-              CheckboxListTile(
-                title: const Text('Enable Local chat history'),
-                value: settingController.enableLocalCache.value,
-                onChanged: (value) {
-                  settingController.setEnableLocalCache(value);
-                },
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () {
-                  _saveSettings();
-                  Get.to(() => const ChatPage());
-                },
-                child: const Text('Save & Chat'),
-              ),
-            ],
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Settings"),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: SingleChildScrollView(
+          child: Obx(
+            () => Column(
+              children: [
+                const SizedBox(height: 20),
+                _buildTextField(
+                  label: 'API Key',
+                  controller: TextEditingController(
+                      text: settingController.apiKey.value),
+                  onChanged: (value) {
+                    settingController.setApiKey(value);
+                  },
+                ),
+                const SizedBox(height: 20),
+                _buildTextField(
+                  label: 'Prompt',
+                  controller: TextEditingController(
+                      text: settingController.prompt.value),
+                  onChanged: (value) {
+                    settingController.setPrompt(value);
+                  },
+                ),
+                const SizedBox(height: 20),
+                _buildSlider(
+                  label: 'Temperature',
+                  value: settingController.temperature.value,
+                  onChanged: (value) {
+                    settingController.setTemperature(value);
+                  },
+                ),
+                const SizedBox(height: 20),
+                CheckboxListTile(
+                  title: const Text('Enable Continuous Conversion'),
+                  value: settingController.enableContinuousConversion.value,
+                  onChanged: (value) {
+                    settingController.setEnableContinuousConversion(value);
+                  },
+                ),
+                const SizedBox(height: 10),
+                CheckboxListTile(
+                  title: const Text('Enable Local chat history'),
+                  value: settingController.enableLocalCache.value,
+                  onChanged: (value) {
+                    settingController.setEnableLocalCache(value);
+                  },
+                ),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: () {
+                    _saveSettings();
+                    Get.back();
+                  },
+                  child: const Text('Save'),
+                ),
+              ],
+            ),
           ),
         ),
       ),
