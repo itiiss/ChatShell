@@ -69,7 +69,12 @@ class ReceivedMessage extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(right: 50.0, left: 18, top: 10, bottom: 5),
       child: isLoading
-          ? const CircularProgressIndicator()
+          ? Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: const [
+                CircularProgressIndicator(),
+              ],
+            )
           : Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: <Widget>[

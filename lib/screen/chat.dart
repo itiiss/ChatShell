@@ -77,6 +77,13 @@ class ChatController extends GetxController {
         ChatService chatService = ChatService(apiKey: settings.apiKey);
         isLoading.value = true;
 
+        messages.add(Message(content: '', role: MessageType.assistant.name));
+        scrollController.animateTo(
+          scrollController.position.maxScrollExtent + 80,
+          duration: const Duration(milliseconds: 500),
+          curve: Curves.ease,
+        );
+
         final response = await chatService.getCompletion(
           message,
           settings.prompt,
@@ -84,9 +91,14 @@ class ChatController extends GetxController {
           getChatHistory(),
         );
         final completion = response['choices'][0]['message']['content'];
+
+        messages.replaceRange(
+          messages.length - 1,
+          messages.length,
+          [Message(content: completion, role: MessageType.assistant.name)],
+        );
         isLoading.value = false;
-        messages.add(
-            Message(content: completion, role: MessageType.assistant.name));
+
         scrollController.animateTo(
           scrollController.position.maxScrollExtent +
               calcMessageHeight(completion),
@@ -151,7 +163,9 @@ class ChatPage extends StatelessWidget {
                         : ReceivedMessage(
                             message: controller.messages[index].content,
                             key: Key(controller.messages[index].content),
-                            isLoading: index == controller.messages.length,
+                            isLoading:
+                                index == controller.messages.length - 1 &&
+                                    controller.isLoading.value,
                           );
                   },
                 ),
@@ -176,17 +190,15 @@ class ChatPage extends StatelessWidget {
                   ),
                 ),
                 Obx(
-                  () => controller.isLoading.value
-                      ? const Padding(
-                          padding: EdgeInsets.all(12.0),
-                          child: CircularProgressIndicator(),
-                        )
-                      : IconButton(
-                          icon: const Icon(Icons.send),
-                          onPressed: () {
+                  () => IconButton(
+                    enableFeedback: !controller.isLoading.value,
+                    icon: const Icon(Icons.send),
+                    onPressed: controller.isLoading.value
+                        ? null
+                        : () {
                             controller.sendMessage(scrollController);
                           },
-                        ),
+                  ),
                 ),
               ],
             ),
