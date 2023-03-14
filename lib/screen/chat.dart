@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:project/model/chat_history.dart';
 import 'package:project/model/setting.dart';
+import 'package:project/screen/prompt.dart';
 import 'package:project/screen/settting.dart';
 import 'package:project/service/chat_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -137,6 +138,10 @@ class ChatPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Chat"),
+        leading: IconButton(
+          icon: const Icon(Icons.lightbulb_outline),
+          onPressed: () => Get.to(() => Prompt()),
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.settings),

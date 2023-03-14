@@ -1,4 +1,3 @@
-
 import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -23,8 +22,9 @@ class ChatService {
           };
         }).toList() ??
         [];
+    messages.insert(0, {"role": "system", "content": prompt});
 
-    messages.add({"role": "user", "content": content});
+    print('m233 $messages');
 
     final body = jsonEncode({
       "model": "gpt-3.5-turbo",
