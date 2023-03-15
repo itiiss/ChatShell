@@ -5,6 +5,7 @@ import 'package:project/model/setting.dart';
 import 'package:project/screen/prompt.dart';
 import 'package:project/screen/settting.dart';
 import 'package:project/service/chat_service.dart';
+import 'package:project/utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:project/widget/chat_bubble.dart';
 
@@ -49,25 +50,14 @@ class ChatController extends GetxController {
     }
   }
 
-  int calcMessageHeight(String text) {
-    final textPainter = TextPainter(
-      text: TextSpan(
-        text: text,
-        style: const TextStyle(fontSize: 14),
-      ),
-      textDirection: TextDirection.ltr,
-    )..layout(minWidth: 0, maxWidth: 250);
-
-    return textPainter.size.height.toInt() + 10;
-  }
-
   void sendMessage(ScrollController scrollController) async {
     final message = textEditingController.text.trim();
     textEditingController.clear();
     if (message.isNotEmpty) {
       messages.add(Message(content: message, role: MessageType.user.name));
       scrollController.animateTo(
-        scrollController.position.maxScrollExtent + calcMessageHeight(message),
+        scrollController.position.maxScrollExtent +
+            Utils.calcMessageHeight(message),
         duration: const Duration(milliseconds: 500),
         curve: Curves.ease,
       );
@@ -102,7 +92,7 @@ class ChatController extends GetxController {
 
         scrollController.animateTo(
           scrollController.position.maxScrollExtent +
-              calcMessageHeight(completion),
+              Utils.calcMessageHeight(completion),
           duration: const Duration(milliseconds: 500),
           curve: Curves.ease,
         );

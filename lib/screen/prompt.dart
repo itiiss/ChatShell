@@ -1,10 +1,15 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:project/model/prompt.dart';
+import 'package:project/utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PromptController extends GetxController {
   final promptList = List<PromptModel>.empty(growable: true).obs;
+  final expandList = List<RxBool>.empty(growable: true).obs;
+  final isExpanded = false.obs;
   final promptNameController = TextEditingController();
   final promptContentController = TextEditingController();
 
@@ -17,6 +22,7 @@ class PromptController extends GetxController {
     prefs = await SharedPreferences.getInstance();
     promptService = PromptService(prefs: prefs);
     promptList.addAll(PromptService.loadPrompt(prefs));
+    expandList.addAll(List.generate(promptList.length, (index) => false.obs));
   }
 
   void showDialog() {
@@ -76,6 +82,55 @@ class Prompt extends StatelessWidget {
 
   final PromptController promptController = Get.put(PromptController());
 
+  Widget ellipsisContent(PromptModel item, int index) {
+    return Obx(
+      () => !promptController.expandList[index].value
+          ? GestureDetector(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    item.content,
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Utils.isOverflow(item.content, 12, 3)
+                      ? const Text(
+                          'Expand',
+                          style: TextStyle(
+                            color: Colors.blue,
+                          ),
+                        )
+                      : const SizedBox(),
+                ],
+              ),
+              onTap: () {
+                promptController.expandList[index].toggle();
+              },
+            )
+          : GestureDetector(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    item.content,
+                    maxLines: null,
+                  ),
+                  const Text(
+                    'Hide',
+                    style: TextStyle(
+                      color: Colors.blue,
+                    ),
+                  ),
+                ],
+              ),
+              onTap: () {
+                promptController.expandList[index].toggle();
+              },
+            ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -128,7 +183,7 @@ class Prompt extends StatelessWidget {
                       },
                       child: ListTile(
                         title: Text(item.name),
-                        subtitle: Text(item.content),
+                        subtitle: ellipsisContent(item, index),
                       ),
                     );
                   },
