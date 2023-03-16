@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:project/screen/chat.dart';
+import 'package:project/model/chat_history.dart';
 
 class ChatService {
   final String apiKey;
