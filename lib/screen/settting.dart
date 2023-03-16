@@ -11,7 +11,6 @@ class SettingController extends GetxController {
   RxDouble temperature = Constants.defaultTemperature.obs;
   RxBool enableContinuousConversion = Constants.enableContinuousConversion.obs;
   RxBool enableLocalCache = Constants.enableLocalCache.obs;
-  RxList<String> dropdownItems = ['A', 'B', 'C', 'D'].obs;
   late SharedPreferences prefs;
 
   @override
@@ -37,7 +36,7 @@ class SettingController extends GetxController {
   setEnableLocalCache(value) => enableLocalCache.value = value;
 }
 
-class DropdownController extends GetxController {
+class PromptSelectController extends GetxController {
   late Rx<PromptModel> dropdownValue = PromptModel(name: '', content: '').obs;
   final promptList = List<PromptModel>.empty(growable: true).obs;
   late SharedPreferences prefs;
@@ -111,7 +110,7 @@ class Setting extends StatelessWidget {
   }
 
   Widget _buildDropdownField({
-    required DropdownController controller,
+    required PromptSelectController controller,
     required void Function(PromptModel) onChanged,
   }) {
     return Obx(
@@ -155,7 +154,8 @@ class Setting extends StatelessWidget {
   }
 
   final SettingController settingController = Get.put(SettingController());
-  final DropdownController dropdownController = Get.put(DropdownController());
+  final PromptSelectController promptSelectController =
+      Get.put(PromptSelectController());
 
   void _saveSettings() async {
     Settings settings = Settings(prefs: settingController.prefs);
@@ -190,7 +190,7 @@ class Setting extends StatelessWidget {
                 ),
                 const SizedBox(height: 20),
                 _buildDropdownField(
-                  controller: dropdownController,
+                  controller: promptSelectController,
                   onChanged: (p) {
                     settingController.setPrompt(p.content);
                   },

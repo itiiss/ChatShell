@@ -9,27 +9,6 @@ import 'package:project/utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:project/widget/chat_bubble.dart';
 
-enum MessageType { assistant, user }
-
-class Message {
-  final String content;
-  final String role;
-
-  Message({
-    required this.content,
-    required this.role,
-  });
-
-  Message.fromJson(Map<String, dynamic> json)
-      : role = json['role'],
-        content = json['content'];
-
-  Map<String, dynamic> toJson() => {
-        'role': role,
-        'content': content,
-      };
-}
-
 class ChatController extends GetxController {
   final messages = List<Message>.empty(growable: true).obs;
   final textEditingController = TextEditingController();
@@ -122,7 +101,8 @@ class ChatPage extends StatelessWidget {
   });
 
   final scrollController = ScrollController();
-  final DropdownController dropdownController = Get.put(DropdownController());
+  final PromptSelectController dropdownController =
+      Get.put(PromptSelectController());
 
   @override
   Widget build(BuildContext context) {

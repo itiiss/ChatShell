@@ -1,8 +1,26 @@
-
 import 'dart:convert';
-
-import 'package:project/screen/chat.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+enum MessageType { assistant, user }
+
+class Message {
+  final String content;
+  final String role;
+
+  Message({
+    required this.content,
+    required this.role,
+  });
+
+  Message.fromJson(Map<String, dynamic> json)
+      : role = json['role'],
+        content = json['content'];
+
+  Map<String, dynamic> toJson() => {
+        'role': role,
+        'content': content,
+      };
+}
 
 class ChatHistory {
   ChatHistory({required this.prefs});

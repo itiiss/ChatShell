@@ -149,20 +149,6 @@ class Prompt extends StatelessWidget {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              // Row(
-              //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              //   children: [
-              //     Expanded(
-              //       child: ElevatedButton(
-              //         onPressed: () {
-              //           promptController.showDialog();
-              //         },
-              //         child: const Text('Add'),
-              //       ),
-              //     ),
-              //   ],
-              // ),
-              // const SizedBox(height: 20),
               Obx(
                 () => ListView.builder(
                   shrinkWrap: true,
