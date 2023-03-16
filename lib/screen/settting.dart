@@ -37,8 +37,8 @@ class SettingController extends GetxController {
   setEnableLocalCache(value) => enableLocalCache.value = value;
 }
 
-class DropdownInputFieldController extends GetxController {
-  late RxString dropdownValue = ''.obs;
+class DropdownController extends GetxController {
+  late Rx<PromptModel> dropdownValue = PromptModel(name: '', content: '').obs;
   final promptList = List<PromptModel>.empty(growable: true).obs;
   late SharedPreferences prefs;
   late PromptService promptService;
@@ -48,16 +48,16 @@ class DropdownInputFieldController extends GetxController {
     prefs = await SharedPreferences.getInstance();
     promptService = PromptService(prefs: prefs);
     promptList.addAll(PromptService.loadPrompt(prefs));
-    dropdownValue = RxString(promptList.first.content);
+    dropdownValue.value = promptList.first;
     super.onInit();
   }
 
-  void dropdownValueChanged(String? newValue) {
+  void dropdownValueChanged(PromptModel? newValue) {
     if (newValue == null) {
       return;
     }
 
-    if (promptList.map((element) => element.content).contains(newValue)) {
+    if (promptList.map((element) => element.name).contains(newValue.name)) {
       dropdownValue.value = newValue;
     }
   }
@@ -111,21 +111,21 @@ class Setting extends StatelessWidget {
   }
 
   Widget _buildDropdownField({
-    required DropdownInputFieldController controller,
-    required void Function(String) onChanged,
+    required DropdownController controller,
+    required void Function(PromptModel) onChanged,
   }) {
     return Obx(
       () => Focus(
-        child: DropdownButtonFormField<String>(
+        child: DropdownButtonFormField<PromptModel>(
           value: controller.dropdownValue.value,
           onChanged: (val) {
             onChanged(val!);
             controller.dropdownValueChanged(val);
           },
           items: controller.promptList
-              .map<DropdownMenuItem<String>>((PromptModel p) {
-            return DropdownMenuItem<String>(
-              value: p.content,
+              .map<DropdownMenuItem<PromptModel>>((PromptModel p) {
+            return DropdownMenuItem<PromptModel>(
+              value: p,
               child: Text(p.name),
             );
           }).toList(),
@@ -155,8 +155,7 @@ class Setting extends StatelessWidget {
   }
 
   final SettingController settingController = Get.put(SettingController());
-  final DropdownInputFieldController dropdownController =
-      Get.put(DropdownInputFieldController());
+  final DropdownController dropdownController = Get.put(DropdownController());
 
   void _saveSettings() async {
     Settings settings = Settings(prefs: settingController.prefs);
@@ -192,8 +191,8 @@ class Setting extends StatelessWidget {
                 const SizedBox(height: 20),
                 _buildDropdownField(
                   controller: dropdownController,
-                  onChanged: (value) {
-                    settingController.setPrompt(value);
+                  onChanged: (p) {
+                    settingController.setPrompt(p.content);
                   },
                 ),
                 const SizedBox(height: 20),

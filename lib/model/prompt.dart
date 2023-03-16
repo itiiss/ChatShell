@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:project/constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PromptModel {
@@ -38,11 +39,13 @@ class PromptService {
     final String? json = prefs.getString(promptKey);
     if (json != null) {
       final List<dynamic> data = jsonDecode(json);
-      return data
-          .map((prompt) => PromptModel.fromJson(prompt))
-          .toList(growable: false);
+      return data.isEmpty
+          ? [Constants.defaultPrompt]
+          : data
+              .map((prompt) => PromptModel.fromJson(prompt))
+              .toList(growable: false);
     } else {
-      return [];
+      return [Constants.defaultPrompt];
     }
   }
 }

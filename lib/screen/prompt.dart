@@ -57,6 +57,7 @@ class PromptController extends GetxController {
                   name: promptNameController.text,
                 ),
               );
+              expandList.add(false.obs);
               promptService.savePrompt(promptList);
               promptNameController.clear();
               promptContentController.clear();

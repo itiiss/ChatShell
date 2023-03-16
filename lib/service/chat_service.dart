@@ -24,8 +24,6 @@ class ChatService {
         [];
     messages.insert(0, {"role": "system", "content": prompt});
 
-    print('m233 $messages');
-
     final body = jsonEncode({
       "model": "gpt-3.5-turbo",
       "temperature": temperature,

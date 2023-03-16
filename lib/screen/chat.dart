@@ -122,12 +122,13 @@ class ChatPage extends StatelessWidget {
   });
 
   final scrollController = ScrollController();
+  final DropdownController dropdownController = Get.put(DropdownController());
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Chat"),
+        title: Obx(() => Text(dropdownController.dropdownValue.value.name)),
         leading: IconButton(
           icon: const Icon(Icons.lightbulb_outline),
           onPressed: () => Get.to(() => Prompt()),

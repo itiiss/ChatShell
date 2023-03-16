@@ -1,3 +1,5 @@
+import 'package:project/model/prompt.dart';
+
 class Constants {
   static const double defaultTemperature = 0.0;
   static const bool enableContinuousConversion = true;
@@ -9,4 +11,9 @@ class Constants {
   static const String enableContinuousConversionKey =
       'enableContinuousConversion';
   static const String enableLocalCacheKey = 'enableLocalCache';
+
+  static final PromptModel defaultPrompt = PromptModel(
+    name: 'Chat',
+    content: 'Normal ChatGpt',
+  );
 }
