@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:project/constants.dart';
+import 'package:project/model/prompt.dart';
 import 'package:project/model/setting.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -10,6 +11,7 @@ class SettingController extends GetxController {
   RxDouble temperature = Constants.defaultTemperature.obs;
   RxBool enableContinuousConversion = Constants.enableContinuousConversion.obs;
   RxBool enableLocalCache = Constants.enableLocalCache.obs;
+  RxList<String> dropdownItems = ['A', 'B', 'C', 'D'].obs;
   late SharedPreferences prefs;
 
   @override
@@ -33,6 +35,32 @@ class SettingController extends GetxController {
   setEnableContinuousConversion(value) =>
       enableContinuousConversion.value = value;
   setEnableLocalCache(value) => enableLocalCache.value = value;
+}
+
+class DropdownInputFieldController extends GetxController {
+  late RxString dropdownValue = ''.obs;
+  final promptList = List<PromptModel>.empty(growable: true).obs;
+  late SharedPreferences prefs;
+  late PromptService promptService;
+
+  @override
+  void onInit() async {
+    prefs = await SharedPreferences.getInstance();
+    promptService = PromptService(prefs: prefs);
+    promptList.addAll(PromptService.loadPrompt(prefs));
+    dropdownValue = RxString(promptList.first.content);
+    super.onInit();
+  }
+
+  void dropdownValueChanged(String? newValue) {
+    if (newValue == null) {
+      return;
+    }
+
+    if (promptList.map((element) => element.content).contains(newValue)) {
+      dropdownValue.value = newValue;
+    }
+  }
 }
 
 class Setting extends StatelessWidget {
@@ -82,7 +110,53 @@ class Setting extends StatelessWidget {
     );
   }
 
+  Widget _buildDropdownField({
+    required DropdownInputFieldController controller,
+    required void Function(String) onChanged,
+  }) {
+    return Obx(
+      () => Focus(
+        child: DropdownButtonFormField<String>(
+          value: controller.dropdownValue.value,
+          onChanged: (val) {
+            onChanged(val!);
+            controller.dropdownValueChanged(val);
+          },
+          items: controller.promptList
+              .map<DropdownMenuItem<String>>((PromptModel p) {
+            return DropdownMenuItem<String>(
+              value: p.content,
+              child: Text(p.name),
+            );
+          }).toList(),
+          decoration: const InputDecoration(
+            labelText: 'Select a prompt',
+            contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            border: OutlineInputBorder(),
+            focusedBorder: OutlineInputBorder(
+              borderSide: BorderSide(
+                color: Colors.blue,
+              ),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderSide: BorderSide(
+                color: Colors.red,
+              ),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(
+                color: Colors.grey,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   final SettingController settingController = Get.put(SettingController());
+  final DropdownInputFieldController dropdownController =
+      Get.put(DropdownInputFieldController());
 
   void _saveSettings() async {
     Settings settings = Settings(prefs: settingController.prefs);
@@ -113,6 +187,13 @@ class Setting extends StatelessWidget {
                       text: settingController.apiKey.value),
                   onChanged: (value) {
                     settingController.setApiKey(value);
+                  },
+                ),
+                const SizedBox(height: 20),
+                _buildDropdownField(
+                  controller: dropdownController,
+                  onChanged: (value) {
+                    settingController.setPrompt(value);
                   },
                 ),
                 const SizedBox(height: 20),
