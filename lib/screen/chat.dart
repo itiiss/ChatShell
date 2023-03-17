@@ -30,6 +30,26 @@ class ChatController extends GetxController {
   }
 
   void sendMessage(ScrollController scrollController) async {
+    if (settings.apiKey.isEmpty) {
+      Get.dialog(
+        AlertDialog(
+          title: const Text('OpenAI API Key is not configured.'),
+          content:
+              const Text('Please configure your Key in the Settings page.'),
+          actions: [
+            TextButton(
+              child: const Text('OK'),
+              onPressed: () {
+                Get.back();
+                Get.to(() => Setting());
+              },
+            ),
+          ],
+        ),
+      );
+      return;
+    }
+
     final message = textEditingController.text.trim();
     textEditingController.clear();
     if (message.isNotEmpty) {
