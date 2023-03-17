@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 enum MessageType { assistant, user }
 
 class Message {
-  final String content;
+  String content;
   final String role;
 
   Message({
@@ -15,6 +15,8 @@ class Message {
   Message.fromJson(Map<String, dynamic> json)
       : role = json['role'],
         content = json['content'];
+
+  bool get isStop => content.contains('stop');
 
   Map<String, dynamic> toJson() => {
         'role': role,

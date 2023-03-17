@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:project/model/chat_history.dart';
@@ -11,7 +13,13 @@ import 'package:project/widget/chat_bubble.dart';
 
 class ChatController extends GetxController {
   final messages = List<Message>.empty(growable: true).obs;
+  var receiveContent = ''.obs;
   final textEditingController = TextEditingController();
+  final StreamController<Message> messageController =
+      StreamController<Message>.broadcast();
+
+  StreamSubscription? streamSubscription;
+
   final scrollController = ScrollController();
   final isLoading = false.obs;
   late SharedPreferences prefs;
@@ -24,9 +32,28 @@ class ChatController extends GetxController {
     prefs = await SharedPreferences.getInstance();
     settings = Settings(prefs: prefs);
     history = ChatHistory(prefs: prefs);
+
+    streamSubscription = messageController.stream.listen((data) {
+      var c = data.content;
+      if (data.isStop) {
+        history.addMessage(messages.elementAt(messages.length - 2));
+        history.addMessage(messages.last);
+      } else {
+        receiveContent.value = receiveContent.value + data.content;
+        messages.last = Message(content: receiveContent.value, role: data.role);
+      }
+    });
+
     if (settings.enableLocalCache) {
       messages.addAll(ChatHistory.loadMessage(prefs));
     }
+  }
+
+  @override
+  void dispose() async {
+    super.dispose();
+    streamSubscription?.cancel();
+    messageController.close();
   }
 
   void sendMessage(ScrollController scrollController) async {
@@ -63,41 +90,28 @@ class ChatController extends GetxController {
       history
           .addMessage(Message(content: message, role: MessageType.user.name));
 
-      try {
-        ChatService chatService = ChatService(apiKey: settings.apiKey);
-        isLoading.value = true;
+      messages.add(
+        Message(content: '', role: MessageType.assistant.name),
+      );
 
-        messages.add(Message(content: '', role: MessageType.assistant.name));
+      try {
+        ChatService chatService = ChatService(
+            apiKey: settings.apiKey, messageController: messageController);
+
         scrollController.animateTo(
           scrollController.position.maxScrollExtent + 80,
           duration: const Duration(milliseconds: 500),
           curve: Curves.ease,
         );
 
-        final response = await chatService.getCompletion(
+        await chatService.getCompletion(
           message,
           settings.prompt,
           settings.defaultTemperature,
           getChatHistory(),
         );
-        final completion = response['choices'][0]['message']['content'];
 
-        messages.replaceRange(
-          messages.length - 1,
-          messages.length,
-          [Message(content: completion, role: MessageType.assistant.name)],
-        );
         isLoading.value = false;
-
-        scrollController.animateTo(
-          scrollController.position.maxScrollExtent +
-              Utils.calcMessageHeight(completion),
-          duration: const Duration(milliseconds: 500),
-          curve: Curves.ease,
-        );
-        history.addMessage(
-          Message(content: completion, role: MessageType.assistant.name),
-        );
       } catch (e) {
         Get.snackbar(
           'Error',
@@ -159,9 +173,7 @@ class ChatPage extends StatelessWidget {
                         : ReceivedMessage(
                             message: controller.messages[index].content,
                             key: Key(controller.messages[index].content),
-                            isLoading:
-                                index == controller.messages.length - 1 &&
-                                    controller.isLoading.value,
+                            isLoading: false,
                           );
                   },
                 ),
