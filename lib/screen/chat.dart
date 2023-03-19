@@ -7,13 +7,12 @@ import 'package:project/model/setting.dart';
 import 'package:project/screen/prompt.dart';
 import 'package:project/screen/settting.dart';
 import 'package:project/service/chat_service.dart';
-import 'package:project/utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:project/widget/chat_bubble.dart';
 
 class ChatController extends GetxController {
   final messages = List<Message>.empty(growable: true).obs;
-  var receiveContent = ''.obs;
+  var streamBuffer = ''.obs;
   final textEditingController = TextEditingController();
   final StreamController<Message> messageController =
       StreamController<Message>.broadcast();
@@ -34,13 +33,13 @@ class ChatController extends GetxController {
     history = ChatHistory(prefs: prefs);
 
     streamSubscription = messageController.stream.listen((data) {
-      var c = data.content;
       if (data.isStop) {
         history.addMessage(messages.elementAt(messages.length - 2));
         history.addMessage(messages.last);
       } else {
-        receiveContent.value = receiveContent.value + data.content;
-        messages.last = Message(content: receiveContent.value, role: data.role);
+        streamBuffer.value = streamBuffer.value + data.content;
+        messages.last = Message(content: streamBuffer.value, role: data.role);
+        scrollToBottom();
       }
     });
 
@@ -56,7 +55,7 @@ class ChatController extends GetxController {
     messageController.close();
   }
 
-  void sendMessage(ScrollController scrollController) async {
+  void sendMessage() async {
     if (settings.apiKey.isEmpty) {
       Get.dialog(
         AlertDialog(
@@ -77,16 +76,12 @@ class ChatController extends GetxController {
       return;
     }
 
+    streamBuffer.value = '';
+
     final message = textEditingController.text.trim();
     textEditingController.clear();
     if (message.isNotEmpty) {
       messages.add(Message(content: message, role: MessageType.user.name));
-      scrollController.animateTo(
-        scrollController.position.maxScrollExtent +
-            Utils.calcMessageHeight(message),
-        duration: const Duration(milliseconds: 500),
-        curve: Curves.ease,
-      );
       history
           .addMessage(Message(content: message, role: MessageType.user.name));
 
@@ -97,12 +92,6 @@ class ChatController extends GetxController {
       try {
         ChatService chatService = ChatService(
             apiKey: settings.apiKey, messageController: messageController);
-
-        scrollController.animateTo(
-          scrollController.position.maxScrollExtent + 80,
-          duration: const Duration(milliseconds: 500),
-          curve: Curves.ease,
-        );
 
         await chatService.getCompletion(
           message,
@@ -123,6 +112,19 @@ class ChatController extends GetxController {
     }
   }
 
+  void scrollToBottom() {
+    Future.delayed(
+      const Duration(milliseconds: 100),
+      () {
+        scrollController.animateTo(
+          scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 500),
+          curve: Curves.easeOutSine,
+        );
+      },
+    );
+  }
+
   List<Message>? getChatHistory() {
     final recentHistory = history.recentMessages;
     return settings.enableContinuousConversion ? recentHistory : [];
@@ -134,7 +136,7 @@ class ChatPage extends StatelessWidget {
     super.key,
   });
 
-  final scrollController = ScrollController();
+  // final scrollController = ScrollController();
   final PromptSelectController dropdownController =
       Get.put(PromptSelectController());
 
@@ -162,7 +164,7 @@ class ChatPage extends StatelessWidget {
               child: Obx(
                 () => ListView.builder(
                   itemCount: controller.messages.length,
-                  controller: scrollController,
+                  controller: controller.scrollController,
                   itemBuilder: (context, index) {
                     return controller.messages[index].role ==
                             MessageType.user.name
@@ -204,7 +206,7 @@ class ChatPage extends StatelessWidget {
                     onPressed: controller.isLoading.value
                         ? null
                         : () {
-                            controller.sendMessage(scrollController);
+                            controller.sendMessage();
                           },
                   ),
                 ),
