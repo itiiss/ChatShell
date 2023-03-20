@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:project/model/chat_history.dart';
@@ -136,7 +135,6 @@ class ChatPage extends StatelessWidget {
     super.key,
   });
 
-  // final scrollController = ScrollController();
   final PromptSelectController dropdownController =
       Get.put(PromptSelectController());
 

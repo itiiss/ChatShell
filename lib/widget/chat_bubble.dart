@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
+import 'package:flutter_markdown/flutter_markdown.dart';
 
 class CustomShape extends CustomPainter {
   final Color bgColor;
@@ -57,9 +58,10 @@ class ReceivedMessage extends StatelessWidget {
                 bottomRight: Radius.circular(18),
               ),
             ),
-            child: Text(
-              message,
-              style: const TextStyle(color: Colors.black, fontSize: 14),
+            child: MarkdownBody(
+              data: message,
+              selectable: true,
+              styleSheetTheme: MarkdownStyleSheetBaseTheme.platform,
             ),
           ),
         ),
